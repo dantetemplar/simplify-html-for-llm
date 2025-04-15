@@ -2,7 +2,7 @@
 
 A tool to simplify HTML content for better processing by Large Language Models (LLMs) like ChatGPT.
 
-## 🚀 [Try the Demo](https://dantetemplar-simplifier.streamlit.app)
+## 🚀 [Try the Demo](https://html-simplifier.streamlit.app/)
 
 ## Features
 
