@@ -1,0 +1,19 @@
+[project]
+name = "simplify-html-for-llm"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "beautifulsoup4>=4.13.4",
+    "httpx>=0.28.1",
+    "pytest>=8.3.5",
+    "ruff>=0.11.5",
+    "streamlit>=1.32.0",
+]
+
+[tool.ruff]
+line-length = 120
+lint.ignore = ["PLR"]
+lint.extend-select = ["I", "UP", "PL"]
+target-version = "py312"
