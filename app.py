@@ -72,10 +72,23 @@ if html_content:
             
             with col1:
                 st.subheader("Original HTML")
-                st.code(prettified_html, language="html")
+                # Truncate large HTML content
+                max_length = 10000  # Adjust this value as needed
+                is_truncated = len(prettified_html) > max_length
+                display_html = (prettified_html[:max_length] + "...") if is_truncated else prettified_html
+                
+                st.code(display_html, language="html", height=600, line_numbers=True)
+                if is_truncated:
+                    st.download_button(
+                        label="Download Full Original HTML",
+                        data=prettified_html,
+                        file_name="original.html",
+                        mime="text/html",
+                        key="download_original"
+                    )
             
             with col2:
                 st.subheader("Simplified HTML (Ready for LLM)")
-                st.code(simplified_html, language="html")
+                st.code(simplified_html, language="html", height=600, line_numbers=True)
         except Exception as e:
             st.error(f"Error processing HTML: {str(e)}") 
