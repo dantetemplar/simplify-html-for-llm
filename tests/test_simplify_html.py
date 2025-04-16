@@ -1,4 +1,7 @@
-from simplify_html import simplify_html_for_llm
+import base64
+import json
+
+from simplify_html import extract_ssr_data, simplify_html_for_llm
 
 
 def test_removes_script_tags():
@@ -13,9 +16,10 @@ def test_removes_script_tags():
     </html>
     """
     simplified = simplify_html_for_llm(html)
-    assert '<script>' not in simplified
-    assert 'alert' not in simplified
-    assert 'Hello World' in simplified
+    assert "<script>" not in simplified
+    assert "alert" not in simplified
+    assert "Hello World" in simplified
+
 
 def test_removes_style_tags():
     html = """
@@ -31,9 +35,10 @@ def test_removes_style_tags():
     </html>
     """
     simplified = simplify_html_for_llm(html)
-    assert '<style>' not in simplified
-    assert 'color: red' not in simplified
-    assert 'Hello World' in simplified
+    assert "<style>" not in simplified
+    assert "color: red" not in simplified
+    assert "Hello World" in simplified
+
 
 def test_removes_comments():
     html = """
@@ -46,8 +51,9 @@ def test_removes_comments():
     </html>
     """
     simplified = simplify_html_for_llm(html)
-    assert '<!--' not in simplified
-    assert 'Hello World' in simplified
+    assert "<!--" not in simplified
+    assert "Hello World" in simplified
+
 
 def test_removes_meta_tags():
     html = """
@@ -62,8 +68,9 @@ def test_removes_meta_tags():
     </html>
     """
     simplified = simplify_html_for_llm(html)
-    assert '<meta' not in simplified
-    assert 'Hello World' in simplified
+    assert "<meta" not in simplified
+    assert "Hello World" in simplified
+
 
 def test_removes_link_tags():
     html = """
@@ -77,8 +84,9 @@ def test_removes_link_tags():
     </html>
     """
     simplified = simplify_html_for_llm(html)
-    assert '<link' not in simplified
-    assert 'Hello World' in simplified
+    assert "<link" not in simplified
+    assert "Hello World" in simplified
+
 
 def test_removes_noscript_tags():
     html = """
@@ -92,9 +100,10 @@ def test_removes_noscript_tags():
     </html>
     """
     simplified = simplify_html_for_llm(html)
-    assert '<noscript>' not in simplified
-    assert 'Please enable JavaScript' not in simplified
-    assert 'Hello World' in simplified
+    assert "<noscript>" not in simplified
+    assert "Please enable JavaScript" not in simplified
+    assert "Hello World" in simplified
+
 
 def test_removes_empty_elements():
     html = """
@@ -107,9 +116,10 @@ def test_removes_empty_elements():
     </html>
     """
     simplified = simplify_html_for_llm(html)
-    assert '<div></div>' not in simplified
-    assert '<span></span>' not in simplified
-    assert 'Hello World' in simplified
+    assert "<div></div>" not in simplified
+    assert "<span></span>" not in simplified
+    assert "Hello World" in simplified
+
 
 def test_preserves_important_content():
     html = """
@@ -126,11 +136,12 @@ def test_preserves_important_content():
     </html>
     """
     simplified = simplify_html_for_llm(html)
-    assert 'Title' in simplified
-    assert 'important' in simplified
-    assert 'Item 1' in simplified
-    assert 'Item 2' in simplified
-    assert 'Link' in simplified
+    assert "Title" in simplified
+    assert "important" in simplified
+    assert "Item 1" in simplified
+    assert "Item 2" in simplified
+    assert "Link" in simplified
+
 
 def test_folds_lists_with_more_than_3_items():
     html = """
@@ -161,28 +172,29 @@ def test_folds_lists_with_more_than_3_items():
     </html>
     """
     simplified = simplify_html_for_llm(html)
-    
+
     # Check that lists are folded to 3 items plus "..."
-    assert 'Item 1' in simplified
-    assert 'Item 2' in simplified
-    assert 'Item 3' in simplified
-    assert 'Item 4' not in simplified
-    assert 'Item 5' not in simplified
-    assert '...' in simplified
-    
+    assert "Item 1" in simplified
+    assert "Item 2" in simplified
+    assert "Item 3" in simplified
+    assert "Item 4" not in simplified
+    assert "Item 5" not in simplified
+    assert "..." in simplified
+
     # Check ordered list
-    assert 'First' in simplified
-    assert 'Second' in simplified
-    assert 'Third' in simplified
-    assert 'Fourth' not in simplified
-    
+    assert "First" in simplified
+    assert "Second" in simplified
+    assert "Third" in simplified
+    assert "Fourth" not in simplified
+
     # Check div folding
-    assert 'Div 1' in simplified
-    assert 'Div 2' in simplified
-    assert 'Div 3' in simplified
-    assert 'Div 4' not in simplified
-    assert 'Div 5' not in simplified
-    assert 'Div 6' not in simplified
+    assert "Div 1" in simplified
+    assert "Div 2" in simplified
+    assert "Div 3" in simplified
+    assert "Div 4" not in simplified
+    assert "Div 5" not in simplified
+    assert "Div 6" not in simplified
+
 
 def test_folds_comma_separated_lists():
     html = """
@@ -198,12 +210,13 @@ def test_folds_comma_separated_lists():
     simplified = simplify_html_for_llm(html)
 
     # Check that only first 3 items are kept
-    assert 'paper' in simplified
-    assert 'rock' in simplified
-    assert 'scissors' in simplified
+    assert "paper" in simplified
+    assert "rock" in simplified
+    assert "scissors" in simplified
     assert 'href="/search?q=class:scissor"' not in simplified
     assert 'href="/search?q=class:papel"' not in simplified
-    assert '...' in simplified
+    assert "..." in simplified
+
 
 def test_handles_mixed_content():
     html = """
@@ -227,21 +240,22 @@ def test_handles_mixed_content():
     simplified = simplify_html_for_llm(html)
 
     # Check list folding
-    assert 'Item 1' in simplified
-    assert 'Item 2' in simplified
-    assert 'Item 3' in simplified
-    assert 'Item 4' not in simplified
-    assert '...' in simplified
+    assert "Item 1" in simplified
+    assert "Item 2" in simplified
+    assert "Item 3" in simplified
+    assert "Item 4" not in simplified
+    assert "..." in simplified
 
     # Check tag folding
-    assert 'tag1' in simplified
-    assert 'tag2' in simplified
-    assert 'tag3' in simplified
-    assert 'tag4' not in simplified
-    assert 'tag5' not in simplified
+    assert "tag1" in simplified
+    assert "tag2" in simplified
+    assert "tag3" in simplified
+    assert "tag4" not in simplified
+    assert "tag5" not in simplified
     # Check for comma and ellipsis after tag3
-    assert any(line.strip() == 'tag3' for line in simplified.splitlines())
-    assert any('...' in line for line in simplified.splitlines())
+    assert any(line.strip() == "tag3" for line in simplified.splitlines())
+    assert any("..." in line for line in simplified.splitlines())
+
 
 def test_preserves_formatting():
     html = """
@@ -259,15 +273,16 @@ def test_preserves_formatting():
     </div>
     """
     simplified = simplify_html_for_llm(html)
-    
+
     # Check that content is folded properly
-    assert 'Paragraph 1' in simplified
-    assert 'Paragraph 2' in simplified
-    assert 'Paragraph 3' in simplified
-    assert 'Paragraph 4' not in simplified
-    assert 'Paragraph 5' not in simplified
-    assert 'Paragraph 3' in simplified
-    assert '...' in simplified
+    assert "Paragraph 1" in simplified
+    assert "Paragraph 2" in simplified
+    assert "Paragraph 3" in simplified
+    assert "Paragraph 4" not in simplified
+    assert "Paragraph 5" not in simplified
+    assert "Paragraph 3" in simplified
+    assert "..." in simplified
+
 
 def test_cli_functionality(tmp_path):
     # Create a test HTML file
@@ -285,34 +300,36 @@ def test_cli_functionality(tmp_path):
     """
     input_file = tmp_path / "input.html"
     output_file = tmp_path / "output.html"
-    
+
     # Write test HTML to input file
     input_file.write_text(test_html)
-    
+
     # Import the main function
     # Mock sys.argv
     import sys
 
     from simplify_html import main
+
     original_argv = sys.argv
     sys.argv = ["simplify_html.py", str(input_file), "-o", str(output_file)]
-    
+
     try:
         # Run the CLI
         main()
-        
+
         # Read the output
         output = output_file.read_text()
-        
+
         # Verify the output
-        assert 'Item 1' in output
-        assert 'Item 2' in output
-        assert 'Item 3' in output
-        assert 'Item 4' not in output
-        assert '...' in output
+        assert "Item 1" in output
+        assert "Item 2" in output
+        assert "Item 3" in output
+        assert "Item 4" not in output
+        assert "..." in output
     finally:
         # Restore original argv
         sys.argv = original_argv
+
 
 def test_removes_tailwind_classes():
     html = """
@@ -329,31 +346,32 @@ def test_removes_tailwind_classes():
     </div>
     """
     simplified = simplify_html_for_llm(html)
-    
+
     # Check that Tailwind classes are removed
-    assert 'flex' not in simplified
-    assert 'justify-between' not in simplified
-    assert 'items-center' not in simplified
-    assert 'p-4' not in simplified
-    assert 'bg-gray-100' not in simplified
-    assert 'text-2xl' not in simplified
-    assert 'font-bold' not in simplified
-    assert 'text-gray-900' not in simplified
-    assert 'gap-2' not in simplified
-    assert 'text-sm' not in simplified
-    assert 'text-gray-500' not in simplified
-    assert 'leading-6' not in simplified
-    assert 'text-gray-700' not in simplified
-    
+    assert "flex" not in simplified
+    assert "justify-between" not in simplified
+    assert "items-center" not in simplified
+    assert "p-4" not in simplified
+    assert "bg-gray-100" not in simplified
+    assert "text-2xl" not in simplified
+    assert "font-bold" not in simplified
+    assert "text-gray-900" not in simplified
+    assert "gap-2" not in simplified
+    assert "text-sm" not in simplified
+    assert "text-gray-500" not in simplified
+    assert "leading-6" not in simplified
+    assert "text-gray-700" not in simplified
+
     # Check that non-Tailwind classes are preserved
     assert 'class="my-wrapper"' in simplified
     assert 'class="custom-class"' in simplified
     assert 'class="content-section"' in simplified
-    
+
     # Check that content is preserved
-    assert 'Title' in simplified
-    assert 'Subtitle' in simplified
-    assert 'Content' in simplified
+    assert "Title" in simplified
+    assert "Subtitle" in simplified
+    assert "Content" in simplified
+
 
 def test_removes_tailwind_classes_completely():
     html = """
@@ -370,14 +388,15 @@ def test_removes_tailwind_classes_completely():
     </div>
     """
     simplified = simplify_html_for_llm(html)
-    
+
     # Check that elements with only Tailwind classes have their class attributes completely removed
-    assert 'class=' not in simplified
-    
+    assert "class=" not in simplified
+
     # Verify content is preserved
-    assert 'Title' in simplified
-    assert 'Subtitle' in simplified
-    assert 'Content' in simplified
+    assert "Title" in simplified
+    assert "Subtitle" in simplified
+    assert "Content" in simplified
+
 
 def test_handles_hover_tooltip():
     html = """
@@ -388,15 +407,16 @@ def test_handles_hover_tooltip():
     </div>
     """
     simplified = simplify_html_for_llm(html)
-    
+
     # Check that the tooltip content is preserved
-    assert 'Go to Universe Home' in simplified
+    assert "Go to Universe Home" in simplified
     # Check that Tailwind classes are removed
-    assert 'pointer-events-none' not in simplified
-    assert 'absolute' not in simplified
-    assert 'group-hover:opacity-100' not in simplified
+    assert "pointer-events-none" not in simplified
+    assert "absolute" not in simplified
+    assert "group-hover:opacity-100" not in simplified
     # Check that the structure is simplified
-    assert 'hoverTooltip' not in simplified
+    assert "hoverTooltip" not in simplified
+
 
 def test_handles_navbar_structure():
     html = """
@@ -413,23 +433,126 @@ def test_handles_navbar_structure():
     </div>
     """
     simplified = simplify_html_for_llm(html)
-    
+
     # Check that important structural classes and attributes are preserved
-    assert 'navbarContainer2' in simplified
-    assert 'navbar2' in simplified
-    assert 'logo-container' in simplified
+    assert "navbarContainer2" in simplified
+    assert "navbar2" in simplified
+    assert "logo-container" in simplified
     assert 'data-ssr="true"' in simplified
     assert 'id="SSRGlobalNavbar"' in simplified
-    
+
     # Check that content is preserved
-    assert 'Navigation Content' in simplified
-    
+    assert "Navigation Content" in simplified
+
     # Check that Tailwind classes are removed
-    assert 'h-16' not in simplified
-    assert 'w-full' not in simplified
-    assert 'md:h-full' not in simplified
-    assert 'md:w-[56px]' not in simplified
-    assert 'flex-col' not in simplified
-    assert 'justify-between' not in simplified
-    assert 'items-center' not in simplified
-    assert 'py-0.5' not in simplified
+    assert "h-16" not in simplified
+    assert "w-full" not in simplified
+    assert "md:h-full" not in simplified
+    assert "md:w-[56px]" not in simplified
+    assert "flex-col" not in simplified
+    assert "justify-between" not in simplified
+    assert "items-center" not in simplified
+    assert "py-0.5" not in simplified
+
+
+def test_script_type_application_json():
+    html = """
+    <script id="__SSR_DATA__" type="application/json">
+      { "user": { "id": 1, "name": "Alice" } }
+    </script>
+    """
+    data = extract_ssr_data(html)
+    assert len(data) == 1
+    assert data[0]["user"]["name"] == "Alice"
+
+
+def test_window_assignment():
+    html = """
+    <script>
+      window.__SSR_DATA__ = {
+        "pageProps": {
+          "title": "Homepage",
+          "content": "Welcome"
+        }
+      };
+    </script>
+    """
+    data = extract_ssr_data(html)
+    assert len(data) == 1
+    assert data[0]["pageProps"]["title"] == "Homepage"
+
+
+def test_json_parse_escaped():
+    json_data = json.dumps({"foo": "bar", "num": 42}).replace('"', '\\"')
+    html = f'''
+    <script>
+      window.ssrData = JSON.parse("{json_data}");
+    </script>
+    '''
+    data = extract_ssr_data(html)
+    assert len(data) == 1
+    assert data[0] == {"foo": "bar", "num": 42}
+
+
+def test_base64_encoded_ssr():
+    raw = json.dumps({"title": "Base64 Test", "ok": True})
+    # Simulate escape(atob(...))
+    base64_encoded = base64.b64encode(raw.encode()).decode()
+    html = f'''
+    <script>
+      window.ssrData = JSON.parse(decodeURIComponent(escape(atob("{base64_encoded}"))));
+    </script>
+    '''
+    data = extract_ssr_data(html)
+    assert len(data) == 1
+    assert data[0]["title"] == "Base64 Test"
+    assert data[0]["ok"] is True
+
+
+def test_base64_encoded_with_entity_equal():
+    raw = json.dumps({"status": "entity test", "value": 123})
+    base64_encoded = base64.b64encode(raw.encode()).decode().replace("=", "&#x3D;")
+    html = f'''
+    <script>
+      window.ssrData = JSON.parse(decodeURIComponent(escape(atob("{base64_encoded}"))));
+    </script>
+    '''
+    data = extract_ssr_data(html)
+    assert len(data) == 1
+    assert data[0]["status"] == "entity test"
+    assert data[0]["value"] == 123
+
+
+def test_data_attribute_ssr():
+    html = """
+    <div id="root" data-ssr='{"product": {"id": 55, "name": "Widget"}}'></div>
+    """
+    data = extract_ssr_data(html)
+    assert len(data) == 1
+    assert data[0]["product"]["name"] == "Widget"
+
+
+def test_ssr_data_script_with_attributes():
+    raw = json.dumps({"pageProps": {"title": "Test Page", "data": [1, 2, 3]}})
+    base64_encoded = base64.b64encode(raw.encode()).decode().replace("=", "&#x3D;")
+    html = f'''
+    <script id="__SSR_DATA__" type="text/javascript">
+     window.ssrData=JSON.parse(decodeURIComponent(escape(atob("{base64_encoded}".replace(/&#x3D;/g,"=")))))
+    </script>
+    '''
+    data = extract_ssr_data(html)
+    assert len(data) == 1
+    assert data[0]["pageProps"]["title"] == "Test Page"
+    assert data[0]["pageProps"]["data"] == [1, 2, 3]
+
+
+def test_next_data_extraction():
+    html = """
+    <script id="__NEXT_DATA__" type="application/json">
+      { "props": { "pageProps": { "title": "Next.js Page", "content": "Welcome to Next.js" } } }
+    </script>
+    """
+    data = extract_ssr_data(html)
+    assert len(data) == 1
+    assert data[0]["props"]["pageProps"]["title"] == "Next.js Page"
+    assert data[0]["props"]["pageProps"]["content"] == "Welcome to Next.js"
