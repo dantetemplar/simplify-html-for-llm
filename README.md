@@ -13,6 +13,7 @@ The tool cleans HTML by:
 - Removing Tailwind CSS classes
 - Folding long lists (keeping only first 3 items)
 - Preserving important structure and content
+- Parsing SSR (Server-Side Rendering) variables to extract their values
 
 ## Example
 
